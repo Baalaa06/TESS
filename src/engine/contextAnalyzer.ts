@@ -1,51 +1,78 @@
-import { getContexts } from "../storage/localStore";
+import { getContexts, saveContext } from "../storage/localStore";
 
-/**
- * Context definition
- */
-export type Context = {
-  hour: number;
-  movementLevel: "LOW" | "MEDIUM" | "HIGH";
-  locationType: "HOME" | "GYM" | "OUTDOOR";
-};
-
-/**
- * Context-Aware False Alarm Filter
- * Returns a risk score between 0 and 1
- */
-export async function getContextRisk(
-  currentContext: Context
-): Promise<number> {
+// Context-aware false alarm detection
+export async function getContextRisk(currentContext) {
   const history = await getContexts();
+  
+  // Find similar contexts (same hour ±2, same movement level, similar location)
+  const similarContexts = history.filter(ctx => {
+    const timeSimilar = Math.abs(ctx.hour - currentContext.hour) <= 2;
+    const movementSimilar = ctx.movementLevel === currentContext.movementLevel;
+    
+    // Location similarity (if available)
+    let locationSimilar = true;
+    if (ctx.location && currentContext.location) {
+      const distance = Math.sqrt(
+        Math.pow(ctx.location.latitude - currentContext.location.latitude, 2) +
+        Math.pow(ctx.location.longitude - currentContext.location.longitude, 2)
+      );
+      locationSimilar = distance < 0.01; // Roughly same area
+    }
+    
+    return timeSimilar && movementSimilar && locationSimilar;
+  });
 
-  // ---- 1. History-based routine detection ----
-  const similarContexts = history.filter(
-    (c: Context) =>
-      c.locationType === currentContext.locationType &&
-      c.movementLevel === currentContext.movementLevel &&
-      Math.abs(c.hour - currentContext.hour) <= 1
-  );
-
-  // If user repeatedly triggers SOS in same safe context → routine
+  // If user repeatedly triggers SOS in similar context → likely routine/false alarm
   if (similarContexts.length >= 3) {
-    return 0.3; // LOW RISK (routine behavior)
+    console.log('⚠️ Possible false alarm context detected - reducing sensitivity');
+    return 0.2; // VERY LOW RISK (routine behavior detected)
+  }
+  
+  if (similarContexts.length >= 2) {
+    return 0.4; // LOW RISK (some routine behavior)
   }
 
-  // ---- 2. Heuristic risk rules (fallback / first-time users) ----
-  if (
-    currentContext.locationType === "OUTDOOR" &&
-    currentContext.hour >= 21
-  ) {
-    return 1.0; // HIGH RISK (night + outdoor)
+  // High-risk scenarios
+  if (currentContext.hour >= 22 || currentContext.hour <= 5) {
+    return 1.0; // HIGH RISK (night time)
   }
 
-  if (
-    currentContext.locationType === "GYM" &&
-    currentContext.movementLevel === "HIGH"
-  ) {
-    return 0.3; // LOW RISK (expected activity)
+  if (currentContext.movementLevel === "HIGH") {
+    return 0.8; // MEDIUM-HIGH RISK (unusual movement)
   }
 
-  // ---- 3. Default cautious behavior ----
-  return 0.6; // MEDIUM RISK
+  return 0.6; // DEFAULT MEDIUM RISK
+}
+
+// Generate current context from device state
+export function getCurrentContext(accelerometerData, location) {
+  const hour = new Date().getHours();
+  
+  // Calculate movement level from accelerometer
+  let movementLevel = "LOW";
+  if (accelerometerData) {
+    const magnitude = Math.sqrt(
+      accelerometerData.x ** 2 + 
+      accelerometerData.y ** 2 + 
+      accelerometerData.z ** 2
+    );
+    
+    if (magnitude > 15) movementLevel = "HIGH";
+    else if (magnitude > 10) movementLevel = "MEDIUM";
+  }
+  
+  // Determine location type (simplified)
+  let locationType = "UNKNOWN";
+  if (location) {
+    // Simple heuristic: if same location as previous contexts, likely HOME/WORK
+    locationType = "OUTDOOR"; // Default for new locations
+  }
+
+  return { 
+    hour, 
+    movementLevel, 
+    location,
+    locationType,
+    timestamp: Date.now()
+  };
 }

@@ -1,50 +1,96 @@
-# Welcome to your Expo app 👋
+# TESS - Trust-First Emergency Safety System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native app built with Expo that demonstrates trust-aware emergency response.
 
-## Get started
+## Core Concept
 
-1. Install dependencies
+Most safety apps ask "Is the user in danger?"
+**TESS asks "Can the system be trusted right now?"**
 
+## Features
+
+- **Trust Status Dashboard**: Real-time system health monitoring
+- **Smart SOS Button**: Context-aware emergency response
+- **Trust-Aware Decisions**: Adapts response based on system reliability
+- **False Alarm Detection**: Learns from usage patterns
+- **Incident Timeline**: Complete log of all emergency events
+
+## How It Works
+
+1. **System Health Monitoring**: Continuously monitors battery, network, and sensors
+2. **Context Analysis**: Tracks time and movement patterns to detect false alarms
+3. **Trust Calculation**: Combines all factors into a trust score (0-100%)
+4. **Adaptive Response**:
+   - **High Trust (75%+)**: Instant emergency alert
+   - **Medium Trust (45-74%)**: 5-second confirmation window
+   - **Low Trust (<45%)**: SMS fallback with retries
+
+## Installation
+
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
+2. (Optional) Configure Firebase:
+   - Create a Firebase project at https://console.firebase.google.com
+   - Add your config to `src/config/firebase.js`
+   - If not configured, app will use local storage fallback
 
+3. Start the development server:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. Open in Expo Go app or simulator
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Tech Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- React Native with Expo
+- Firebase Firestore (optional - with local fallback)
+- Expo Battery API
+- Expo Network API
+- Expo Sensors (Accelerometer)
+- AsyncStorage for local data fallback
 
-## Get a fresh project
+## Usage
 
-When you're ready, run:
+1. **Trust Dashboard**: View current system trust status and health metrics
+2. **Press SOS**: Trigger emergency evaluation and response
+3. **View Logs**: Check incident timeline and system decisions
 
-```bash
-npm run reset-project
+## Trust Factors
+
+- **Battery Level**: Low battery reduces trust
+- **Network Status**: Offline reduces trust
+- **Sensor Availability**: Missing sensors reduce trust
+- **Context History**: Repeated false alarms reduce sensitivity
+
+## Firebase Setup (Optional)
+
+1. Create Firebase project
+2. Enable Firestore Database
+3. Add your config to `src/config/firebase.js`:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Safety Features
 
-## Learn more
+- Always errs on the side of caution
+- Fallback mechanisms for system failures
+- Clear explanations for all decisions
+- No background surveillance or recording
+- Works offline with local storage
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+*Built for demonstration purposes. In a real emergency, always call local emergency services directly.*

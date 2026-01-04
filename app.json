@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "GENSAFE",
-    "slug": "GENSAFE",
+    "name": "TESS - Trust-First Emergency Safety System",
+    "slug": "TESS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "gensafe",
+    "scheme": "tess",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

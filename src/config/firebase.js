@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // Firebase configuration - replace with your config from Firebase Console
@@ -14,12 +15,19 @@ const firebaseConfig = {
 let app = null;
 let db = null;
 let isFirebaseEnabled = false;
+let auth = null;
 
 try {
   // Only initialize if config is provided
   if (firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    try {
+      auth = getAuth(app);
+    } catch (e) {
+      console.warn('Firebase Auth initialization failed', e);
+      auth = null;
+    }
     isFirebaseEnabled = true;
     console.log('Firebase initialized successfully');
   } else {
@@ -30,4 +38,4 @@ try {
   isFirebaseEnabled = false;
 }
 
-export { db, isFirebaseEnabled };
+export { auth, db, isFirebaseEnabled };

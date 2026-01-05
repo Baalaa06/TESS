@@ -92,5 +92,3 @@ const firebaseConfig = {
 - Works offline with local storage
 
 ---
-
-*Built for demonstration purposes. In a real emergency, always call local emergency services directly.*
